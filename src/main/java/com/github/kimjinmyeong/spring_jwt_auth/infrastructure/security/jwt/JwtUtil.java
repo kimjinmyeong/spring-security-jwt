@@ -11,10 +11,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -24,8 +23,8 @@ public class JwtUtil {
 
     public final String BEARER_PREFIX = "Bearer ";
 
-    @Value("${jwt.secret.expiration-time}")
-    private long EXPIRATION_TIME;
+    @Value("${jwt.secret.expiration-time-ms}")
+    private long expirationTimeMs;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -40,49 +39,77 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
+    /**
+     * Creates a JWT token with the specified username and roles.
+     *
+     * @param username the username of the user
+     * @param roles    the roles of the user
+     * @return the JWT token
+     */
     public String createToken(String username, List<SimpleGrantedAuthority> roles) {
-        Date date = new Date();
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", roles);
-        return BEARER_PREFIX +
-                Jwts.builder()
-                        .setClaims(claims)
-                        .setSubject(username)
-                        .setExpiration(new Date(date.getTime() + EXPIRATION_TIME))
-                        .setIssuedAt(date)
-                        .signWith(key, signatureAlgorithm)
-                        .compact();
+        Date now = new Date();
+        Map<String, Object> claims = Map.of(
+                "roles", roles.stream().map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toList())
+        );
+
+        return BEARER_PREFIX + Jwts.builder()
+                .setClaims(claims)
+                .setSubject(username)
+                .setExpiration(new Date(now.getTime() + expirationTimeMs))
+                .setIssuedAt(now)
+                .signWith(key, signatureAlgorithm)
+                .compact();
     }
 
+    /**
+     * Resolves the JWT token from the Authorization header in the request.
+     *
+     * @param request HttpServletRequest object.
+     * @return the JWT token without the Bearer prefix, or null if not present
+     */
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken)) {
-            String decodedToken = URLDecoder.decode(bearerToken, StandardCharsets.UTF_8);
-            if (decodedToken.startsWith(BEARER_PREFIX)) {
-                return decodedToken.substring(7);
-            }
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(BEARER_PREFIX.length());
         }
         return null;
     }
 
+    /**
+     * Validates the specified JWT token.
+     *
+     * @param token the JWT token to validate
+     * @return true if the token is valid, false otherwise
+     */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
-            log.error("Invalid JWT signature.");
+            log.error("Invalid JWT signature: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            log.error("Expired JWT token.");
+            log.error("Expired JWT token: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token.");
+            log.error("Unsupported JWT token: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.error("JWT claims is empty.");
+            log.error("JWT claims is empty: {}", e.getMessage());
         }
         return false;
     }
 
+    /**
+     * Extracts the username from the JWT token.
+     *
+     * @param token the JWT token
+     * @return the username, or null if extraction fails
+     */
     public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+        } catch (JwtException e) {
+            log.error("Failed to extract username from token: {}", e.getMessage());
+            return null;
+        }
     }
 
 }
