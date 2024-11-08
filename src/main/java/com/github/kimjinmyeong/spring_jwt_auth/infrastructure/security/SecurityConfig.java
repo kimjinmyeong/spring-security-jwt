@@ -1,7 +1,6 @@
 package com.github.kimjinmyeong.spring_jwt_auth.infrastructure.security;
 
-import com.github.kimjinmyeong.spring_jwt_auth.infrastructure.security.jwt.JwtAuthorizationFilter;
-import com.github.kimjinmyeong.spring_jwt_auth.infrastructure.security.jwt.JwtUtil;
+import com.github.kimjinmyeong.spring_jwt_auth.application.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

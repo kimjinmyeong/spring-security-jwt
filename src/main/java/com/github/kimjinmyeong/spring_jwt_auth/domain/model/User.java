@@ -4,6 +4,7 @@ import com.github.kimjinmyeong.spring_jwt_auth.domain.enums.UserRoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity(name = "users")
