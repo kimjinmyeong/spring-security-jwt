@@ -1,5 +1,6 @@
-package com.github.kimjinmyeong.spring_jwt_auth.infrastructure.security.jwt;
+package com.github.kimjinmyeong.spring_jwt_auth.application.util;
 
+import com.github.kimjinmyeong.spring_jwt_auth.domain.enums.UserRoleEnum;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -7,7 +8,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -46,13 +46,13 @@ public class JwtUtil {
      * @param roles    the roles of the user
      * @return the JWT token
      */
-    public String createToken(String username, List<SimpleGrantedAuthority> roles) {
+    public String createToken(String username, Set<UserRoleEnum> roles) {
         Date now = new Date();
-        Map<String, Object> claims = Map.of(
-                "roles", roles.stream().map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toList())
-        );
+        Map<String, Object> claims = Map.of("roles",  roles.stream()
+                .map(UserRoleEnum::name)
+                .collect(Collectors.toList()));
 
-        return BEARER_PREFIX + Jwts.builder()
+        return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setExpiration(new Date(now.getTime() + expirationTimeMs))
