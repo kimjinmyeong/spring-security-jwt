@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: spring-jwt-auth
+  profiles:
+    active: dev
