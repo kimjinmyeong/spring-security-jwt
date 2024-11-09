@@ -33,7 +33,11 @@ public class SecurityConfig {
 
         // Set up authorization rules
         http.authorizeHttpRequests(authorize ->
-                authorize.requestMatchers("/signup", "/sign")
+                authorize.requestMatchers("/signup", "/sign",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/docs")
                         .permitAll()
                         .anyRequest().authenticated());
 

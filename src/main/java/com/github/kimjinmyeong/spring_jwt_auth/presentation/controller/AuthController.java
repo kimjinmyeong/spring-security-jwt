@@ -5,6 +5,8 @@ import com.github.kimjinmyeong.spring_jwt_auth.application.service.dto.LoginResp
 import com.github.kimjinmyeong.spring_jwt_auth.application.service.dto.SignupResponseDto;
 import com.github.kimjinmyeong.spring_jwt_auth.presentation.dto.LoginRequestDto;
 import com.github.kimjinmyeong.spring_jwt_auth.presentation.dto.SignupRequestDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,20 +20,20 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /**
-     * Handles user signup requests.
-     */
+    @Operation(summary = "User Signup", description = "Create a new user account.")
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponseDto> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<SignupResponseDto> signup(
+            @Parameter(description = "Signup request data", required = true)
+            @Valid @RequestBody SignupRequestDto signupRequestDto) {
         SignupResponseDto signupResponse = authService.signup(signupRequestDto);
         return ResponseEntity.ok(signupResponse);
     }
 
-    /**
-     * Handles user login requests.
-     */
+    @Operation(summary = "User Login", description = "Authenticate a user and return a JWT token.")
     @PostMapping("/sign")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+    public ResponseEntity<LoginResponseDto> login(
+            @Parameter(description = "Login request data", required = true)
+            @Valid @RequestBody LoginRequestDto loginRequest) {
         LoginResponseDto loginResponse = authService.login(loginRequest);
         return ResponseEntity.ok(loginResponse);
     }
