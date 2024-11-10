@@ -11,6 +11,7 @@ import com.github.kimjinmyeong.spring_jwt_auth.exception.ErrorMessage;
 import com.github.kimjinmyeong.spring_jwt_auth.exception.UnAuthorizationException;
 import com.github.kimjinmyeong.spring_jwt_auth.presentation.dto.LoginRequestDto;
 import com.github.kimjinmyeong.spring_jwt_auth.presentation.dto.SignupRequestDto;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
+import static com.github.kimjinmyeong.spring_jwt_auth.application.util.JwtUtil.BEARER_PREFIX;
 import static com.github.kimjinmyeong.spring_jwt_auth.infrastructure.security.UserDetailsImpl.ROLE_PREFIX;
 
 @Slf4j
@@ -64,7 +66,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public LoginResponseDto login(LoginRequestDto request) {
+    public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
         log.info("Attempting to log in user: {}", request.getUsername());
 
         User user = userRepository.findByUsername(request.getUsername())
@@ -81,6 +83,8 @@ public class AuthService {
         String token = jwtUtil.createToken(user.getUsername(), user.getRoles());
         log.info("User logged in successfully: {}, token issued", user.getUsername());
 
+        response.setHeader("Authorization", BEARER_PREFIX + token);
         return new LoginResponseDto(token);
     }
+
 }
