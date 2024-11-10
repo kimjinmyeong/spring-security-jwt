@@ -1,5 +1,3 @@
-# spring-security-jwt
-
 This repository contains an example Spring project implementing authentication and authorization using Spring Security with JWT. The project provides a set of APIs for user registration, login, and role-based access control.
 
 ## Features
@@ -7,6 +5,15 @@ This repository contains an example Spring project implementing authentication a
 - **User Registration**: Allows new users to sign up by providing necessary details.
 - **User Login**: Authenticates users and provides a JWT token for subsequent requests.
 - **Role-Based Access Control**: Access control for specific endpoints based on user roles (`MASTER` and `USER`).
+- **Default Admin Account**: A pre-configured `admin` account is available for testing.
+
+## Default Admin Account
+
+You can use the following default admin account to test admin-specific features:
+- **Username**: `admin`
+- **Password**: `adminpassword`
+
+> Note: The password is hashed using `passwordEncoder` before storage.
 
 ## APIs
 
