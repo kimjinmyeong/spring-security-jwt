@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
-    public final String AUTHORIZATION_HEADER = "Authorization";
+    public final static String AUTHORIZATION_HEADER = "Authorization";
 
-    public final String BEARER_PREFIX = "Bearer ";
+    public final static String BEARER_PREFIX = "Bearer ";
 
     @Value("${jwt.secret.expiration-time-ms}")
     private long expirationTimeMs;
