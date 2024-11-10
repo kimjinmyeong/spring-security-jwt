@@ -35,13 +35,13 @@ The following endpoints are available:
   - **Endpoint**: `/admin`
   - **Method**: `GET`
   - **Description**: Grants access to users with the `MASTER` role.
-  - **Authorization**: Requires `MASTER` role.
+  - **Authorization**: Requires a Bearer Token with the `MASTER` role.
 
 - **User Only Access**  
   - **Endpoint**: `/user`
   - **Method**: `GET`
   - **Description**: Grants access to users with the `USER` role.
-  - **Authorization**: Requires `USER` role.
+  - **Authorization**: Requires a Bearer Token with the `USER` role.
 
 ## Setup Instructions
 
